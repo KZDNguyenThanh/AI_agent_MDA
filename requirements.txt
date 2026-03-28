@@ -1,0 +1,14 @@
+torch
+torchvision
+fastapi
+uvicorn
+pillow
+python-multipart
+numpy
+pandas
+requests
+openpyxl
+gspread
+gspread-dataframe
+gdown
+matplotlib
