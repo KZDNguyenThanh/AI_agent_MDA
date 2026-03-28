@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    restart: unless-stopped
+    environment:
+      - N8N_HOST=${N8N_HOST}
+      - N8N_PORT=${N8N_PORT}
+      - N8N_PROTOCOL=${N8N_PROTOCOL}
+      - NODE_ENV=production
+      - N8N_SECURE_COOKIE=false
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL}
+      - N8N_EDITOR_BASE_URL=${N8N_EDITOR_BASE_URL}
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - E:/AI_Sol/3_Knowledge_Base_Matrix.xlsx:/files/3_Knowledge_Base_Matrix.xlsx
+
+volumes:
+  n8n_data:
+    external: true
