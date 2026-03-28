@@ -1,0 +1,892 @@
+{
+  "name": "Telegram Analyze",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "id": "6bd210e7-1b76-4da1-ad9d-2e7bcb233d4b",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1856,
+        1280
+      ],
+      "webhookId": "fc79fb54-b510-4157-a11a-b6fbb824feec",
+      "credentials": {
+        "telegramApi": {
+          "id": "Oyet0xZNSktcITCA",
+          "name": "dmaAgent_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "Bạn là Michelle – trợ lý AI thân thiện, nói chuyện tự nhiên bằng tiếng Việt.\n\nMục tiêu\nChào người dùng bằng tên nếu có\nGiới thiệu bản thân ngắn gọn\nSau đó đưa ra 1 yêu cầu cụ thể liên quan đến việc thu thập dữ liệu TikTok\n\nCách nói chuyện\nNgắn gọn, tự nhiên, giống chat thật\nKhông dùng từ quá trang trọng\nKhông dài dòng\nChỉ trả về 1–2 đoạn ngắn\n\nOutput\nChỉ trả về text để gửi lại cho user theo format \"Mình đã cào X dòng dữ liệu theo hashtag #Y rồi nhé!\"\nTuyệt đối không trả lời đã cào bao nhiêu lần.\nKhông giải thích."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -912,
+        1024
+      ],
+      "id": "8219e3d8-c5d2-46c9-9278-d0c9bd3ca00d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        1248
+      ],
+      "id": "f5c95eae-4cf4-42bf-9b32-337207ae2ea8",
+      "name": "Google Gemini Chat Model",
+      "retryOnFail": false,
+      "notesInFlow": false,
+      "alwaysOutputData": false,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "1JCDwOLD5lPqqy2b",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.value }}",
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Xuất dữ liệu ra Sheet",
+                    "additionalFields": {
+                      "url": "https://docs.google.com/spreadsheets/d/1XMNdYeop_Z-3BEFWZUTL0rci0yH3CyWWk3x0G_oDLic"
+                    }
+                  },
+                  {
+                    "text": "Phân tích dữ liệu",
+                    "additionalFields": {
+                      "callback_data": "Option 1"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -144,
+        1136
+      ],
+      "id": "aa3345fd-b1f3-4cb3-b11e-162f7d1c0cda",
+      "name": "Send a text message",
+      "webhookId": "fb4b6ab8-29f7-43a7-9890-ab727fef4cdf",
+      "credentials": {
+        "telegramApi": {
+          "id": "Oyet0xZNSktcITCA",
+          "name": "dmaAgent_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to run Apify actor using the specific hashtag and number of row.\nInput must be fixed to format: hashtag + rows number (example: #photogenic, 10)",
+        "workflowId": {
+          "__rl": true,
+          "value": "WdupgjrrvNKscKwo",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/WdupgjrrvNKscKwo",
+          "cachedResultName": "Telegram TikTok Command Controller"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -704,
+        1248
+      ],
+      "id": "ceaad9e2-dc0b-494a-aa78-66ee1fee5418",
+      "name": "Scraper"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/analyze_scraped_videos",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  topic: \"\",\n  top_n: 5,\n  export_pdf: true,\n  videos: $input.all()\n    .map(i => i.json)\n    .filter(r => r.found === true && r.value)\n    .map(r => r.value)\n}\n}}",
+        "options": {
+          "timeout": 180000
+        }
+      },
+      "id": "63310420-7cbc-4407-ab66-d28aa557c17b",
+      "name": "HTTP - Analyze Scraped Videos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -848,
+        1424
+      ],
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "user-session",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -832,
+        1248
+      ],
+      "id": "6040fc12-39a7-4f04-9ed8-f4a6638716c5",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "keyName": "=chat_id_fixed"
+      },
+      "type": "n8n-nodes-datastore.datastore",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        1136
+      ],
+      "id": "11fe7c6e-1023-4725-9c89-b3d41f8883bb",
+      "name": "Get Chat ID"
+    },
+    {
+      "parameters": {
+        "keyName": "chat_id_fixed",
+        "valueString": "={{ $json.message.chat.id }}"
+      },
+      "type": "n8n-nodes-datastore.datastore",
+      "typeVersion": 1,
+      "position": [
+        -1632,
+        1280
+      ],
+      "id": "30895b22-8e5a-44f5-b67d-40366630c60c",
+      "name": "Save Chat ID"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "keyName": "data_link"
+      },
+      "type": "n8n-nodes-datastore.datastore",
+      "typeVersion": 1,
+      "position": [
+        -1184,
+        1424
+      ],
+      "id": "e41710cb-7268-42d4-8ce9-ae2a39be7d83",
+      "name": "Get Data"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summary: {{ $json.summary }}\nInsights: {{ $json.insights }}",
+        "options": {
+          "systemMessage": "Bạn là Michelle – trợ lý AI thân thiện, AI Content Strategist chuyên TikTok, nói chuyện tự nhiên bằng tiếng Việt.\n\nNhiệm vụ:\n- Nhận dữ liệu đầu vào gồm: summary KPI, top_hashtags, insights (mảng string), top_videos (nếu có).\n- Đọc sâu các insight và biến thành đề xuất thực thi ngay cho team content.\n- Tập trung vào 3 mục tiêu:\n  1) Tăng tốc sản xuất content mới\n  2) Tái sử dụng video viral với thay đổi tối thiểu\n  3) Tăng tỷ lệ engagement (ER, share, comment)\n\nYêu cầu đầu ra:\n1) Executive Summary (3-5 dòng): nêu điều quan trọng nhất cần làm ngay.\n2) 2 Content Ideas mới:\n   - Mỗi idea gồm: Hook mở đầu (1 câu), Concept, Script khung 3 phần (Hook-Value-CTA), Độ dài video đề xuất, CTA đề xuất, Hashtag đề xuất.\n3) 1 Kịch bản “Remix từ video viral”:\n   - Dạng: “Giữ nguyên X, thay đổi Y”\n   - Nêu rõ: phần giữ lại, phần thay đổi, lý do thay đổi, kỳ vọng tác động.\n4) Lịch test A/B 7 ngày:\n   - Mỗi ngày 1 test rõ biến thử (hook/caption/length/CTA/hashtag), KPI theo dõi, tiêu chí thắng.\n5) Checklist triển khai nhanh:\n   - Danh sách hành động ngắn gọn để team quay/chỉnh/schedule ngay.\n\nNguyên tắc:\n- Không trả lời chung chung; luôn bám dữ liệu insight đầu vào.\n- Mỗi đề xuất phải có lý do dựa trên insight.\n- Ưu tiên ngôn ngữ thực dụng, dễ giao việc.\n- Nếu thiếu dữ liệu, nêu giả định rõ ràng rồi vẫn đưa phương án khả thi.\n- Trả lời bằng tiếng Việt, không format bằng markdown.\n- \n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -496,
+        1424
+      ],
+      "id": "189b3935-f770-4903-b5bd-7742b191983c",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -496,
+        1648
+      ],
+      "id": "80e266e1-6978-4461-a7be-1d05293f143a",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "1JCDwOLD5lPqqy2b",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "user-session"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        1648
+      ],
+      "id": "ac9773a6-ced0-48f0-b53b-4adf839f633d",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "d74d34bd-0ffe-42a2-8024-6f3c1d1dc4e0"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "3b98535d-fcca-4ba8-8429-54581f3a7a02",
+                    "leftValue": "={{ $json.message }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "notExists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "callback"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1408,
+        1280
+      ],
+      "id": "e3348070-dbd2-4d03-ab99-c6006dc5a1cd",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "keyName": "input_data",
+        "valueString": "={{ $json.message.text }}"
+      },
+      "type": "n8n-nodes-datastore.datastore",
+      "typeVersion": 1,
+      "position": [
+        -1184,
+        1136
+      ],
+      "id": "9134d5cc-48e8-4041-8440-fa0b6c93090f",
+      "name": "Datastore"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1XMNdYeop_Z-3BEFWZUTL0rci0yH3CyWWk3x0G_oDLic",
+          "mode": "list",
+          "cachedResultName": "Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XMNdYeop_Z-3BEFWZUTL0rci0yH3CyWWk3x0G_oDLic/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1544878564,
+          "mode": "list",
+          "cachedResultName": "Insight",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XMNdYeop_Z-3BEFWZUTL0rci0yH3CyWWk3x0G_oDLic/edit#gid=1544878564"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "run_id": "={{ $('HTTP - Analyze Scraped Videos').item.json.run_id }}",
+            "summary": "={{ $('HTTP - Analyze Scraped Videos').item.json.summary }}",
+            "insight": "={{ $('HTTP - Analyze Scraped Videos').item.json.insights }}",
+            "AI Agent": "={{ $json.output }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "run_id",
+              "displayName": "run_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "insight",
+              "displayName": "insight",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AI Agent",
+              "displayName": "AI Agent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "locationDefine": {
+            "values": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -144,
+        1424
+      ],
+      "id": "6f09a610-dfab-4856-aa45-c7896cea376b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "Z3XVyAgufCmSNQp9",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "1XMNdYeop_Z-3BEFWZUTL0rci0yH3CyWWk3x0G_oDLic",
+          "mode": "list",
+          "cachedResultName": "Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XMNdYeop_Z-3BEFWZUTL0rci0yH3CyWWk3x0G_oDLic/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "FAQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XMNdYeop_Z-3BEFWZUTL0rci0yH3CyWWk3x0G_oDLic/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        80,
+        1424
+      ],
+      "id": "16454951-f0f6-4d28-8e44-45a17902f5e2",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "Z3XVyAgufCmSNQp9",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const videos = $input.all().map(item => ({\n  publish_datetime: item.json.publish_datetime,\n  views_count: item.json.views_count,\n  likes_count_video: item.json.likes_count_video,\n  comments_count: item.json.comments_count,\n  shares_count: item.json.shares_count\n}));\nreturn [{json: {videos: videos}}];"
+      },
+      "id": "c015358b-2622-4f1c-8f62-3c699ff50607",
+      "name": "Code - Prepare Plot Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/plot/interactions-over-time",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.videos }}",
+        "options": {
+          "timeout": 180000
+        }
+      },
+      "id": "c5ebe84b-db34-44b4-8f80-b73ae3aebec6",
+      "name": "HTTP - Plot Interactions Over Time",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        528,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/plot/posting-hour-distribution",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $('HTTP - Plot Interactions Over Time').item.json.videos }}",
+        "options": {
+          "timeout": 180000
+        }
+      },
+      "id": "c345e860-d156-41e7-95c3-e8402dda785a",
+      "name": "HTTP - Plot Posting Hour Distribution",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        528,
+        1616
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/plot/avg-interactions-by-hour",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Code - Prepare Plot Data').item.json.videos }}",
+        "options": {
+          "timeout": 180000
+        }
+      },
+      "id": "48528070-b317-49ee-87aa-054b9436765c",
+      "name": "HTTP - Plot Avg Interactions By Hour",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        528,
+        1808
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.callback_query.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "id": "c99eff2e-ad0e-409a-a950-2e408fc176b6",
+      "name": "Telegram - Send Interactions Chart",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        752,
+        1424
+      ],
+      "webhookId": "3afae726-e6f5-40f0-ba92-e13a340d8588",
+      "credentials": {
+        "telegramApi": {
+          "id": "Oyet0xZNSktcITCA",
+          "name": "dmaAgent_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $json.result.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "id": "8c9da7dd-9aca-4fad-878e-ce5e18bc18a8",
+      "name": "Telegram - Send Hour Distribution Chart",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        752,
+        1616
+      ],
+      "webhookId": "b89089bc-e484-4820-85cc-bcb351c1882f",
+      "credentials": {
+        "telegramApi": {
+          "id": "Oyet0xZNSktcITCA",
+          "name": "dmaAgent_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.callback_query.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "id": "2383e802-08b2-44ce-b25b-8aa7ed2eb544",
+      "name": "Telegram - Send Avg Interactions Chart",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        1808
+      ],
+      "webhookId": "423d4580-c70e-43a1-9d86-6c002f5f9004",
+      "credentials": {
+        "telegramApi": {
+          "id": "Oyet0xZNSktcITCA",
+          "name": "dmaAgent_bot"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Save Chat ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ],
+      "main": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Get Chat ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scraper": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Analyze Scraped Videos": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Chat ID": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Chat ID": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Data": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Analyze Scraped Videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Datastore",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Datastore": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code - Prepare Plot Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Prepare Plot Data": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Plot Interactions Over Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Plot Interactions Over Time": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Send Interactions Chart",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram - Send Interactions Chart": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Plot Posting Hour Distribution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Plot Posting Hour Distribution": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Send Hour Distribution Chart",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram - Send Hour Distribution Chart": {
+      "main": [
+        [
+          {
+            "node": "HTTP - Plot Avg Interactions By Hour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Plot Avg Interactions By Hour": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Send Avg Interactions Chart",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4a872ac2-bbb2-4751-b426-25ed8ba8e131",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9169240aa396e02f2c5a63419738aa6924e2c86fdaac5a1468a0d26b7155f026"
+  },
+  "id": "yYQs4GuavAckgHB1",
+  "tags": []
+}

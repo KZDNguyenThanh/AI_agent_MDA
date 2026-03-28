@@ -1,0 +1,376 @@
+{
+  "name": "Telegram TikTok Command Controller",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "https://console.apify.com/actors/GdWCkxBtKWOsKjdch",
+          "mode": "url"
+        },
+        "customBody": "={\n    \"commentsPerPost\": 0,\n    \"excludePinnedPosts\": false,\n    \"hashtags\": [\n        \"{{ $json.hashtag }}\"\n    ],\n    \"maxFollowersPerProfile\": 0,\n    \"maxFollowingPerProfile\": 0,\n    \"maxRepliesPerComment\": 0,\n    \"proxyCountryCode\": \"None\",\n    \"resultsPerPage\": {{ $json.rows }},\n    \"scrapeRelatedVideos\": false,\n    \"shouldDownloadAvatars\": false,\n    \"shouldDownloadCovers\": false,\n    \"shouldDownloadMusicCovers\": false,\n    \"shouldDownloadSlideshowImages\": false,\n    \"shouldDownloadVideos\": false\n}"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        -16
+      ],
+      "id": "e44d3a84-5f5c-4354-8e7f-5b3152ce120c",
+      "name": "Run an Actor and get dataset",
+      "credentials": {
+        "apifyApi": {
+          "id": "feQS1UGAppcpyAO6",
+          "name": "Apify account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "sessionId"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -992,
+        -16
+      ],
+      "id": "22672f1a-dcbf-464c-802e-189d2b3aa6ab",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1XMNdYeop_Z-3BEFWZUTL0rci0yH3CyWWk3x0G_oDLic",
+          "mode": "list",
+          "cachedResultName": "Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XMNdYeop_Z-3BEFWZUTL0rci0yH3CyWWk3x0G_oDLic/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "FAQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XMNdYeop_Z-3BEFWZUTL0rci0yH3CyWWk3x0G_oDLic/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "video_id"
+          ],
+          "schema": [
+            {
+              "id": "tiktok_username",
+              "displayName": "tiktok_username",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "video_id",
+              "displayName": "video_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "video_url",
+              "displayName": "video_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "is_latest_video",
+              "displayName": "is_latest_video",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "days_since_published",
+              "displayName": "days_since_published",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "video_desc",
+              "displayName": "video_desc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "hashtags",
+              "displayName": "hashtags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "createTimeISO",
+              "displayName": "createTimeISO",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "publish_datetime",
+              "displayName": "publish_datetime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "duration_seconds",
+              "displayName": "duration_seconds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "views_count",
+              "displayName": "views_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "likes_count_video",
+              "displayName": "likes_count_video",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "comments_count",
+              "displayName": "comments_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "shares_count",
+              "displayName": "shares_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -80,
+        -16
+      ],
+      "id": "6dd94989-a003-4c4e-9e3f-001b1e21d2d0",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "Z3XVyAgufCmSNQp9",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        144,
+        -16
+      ],
+      "id": "3f3d33a9-1390-491c-95a8-752011f69d0d",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json.value|| \"#photogenic 50\";\nconst parts = input.toString().trim().split(/\\s+/);\n\nreturn [{\n  json: {\n    hashtag: parts[0].replace(',', ''),\n    rows: Number(parts[1])\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -736,
+        -16
+      ],
+      "id": "d2e8de02-5fd3-4e74-a91c-8c77b02ee123",
+      "name": "Data Split"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize Apify TikTok data for Google Sheet\n// Input: $input.all() (array of video objects from Apify)\n// Output: Array of normalized rows with required columns\n\nconst rows = $input.all();\nconst normalized = [];\n\nfor (const item of rows) {\n  const json = item.json;\n  \n  // Extract username from profileUrl (e.g., https://www.tiktok.com/@lookgoodinphotos -> lookgoodinphotos)\n  let tiktok_username = '';\n  if (json.authorMeta?.profileUrl) {\n    const match = json.authorMeta.profileUrl.match(/@([^/]+)/);\n    tiktok_username = match ? match[1] : '';\n  }\n  \n  // Extract and format hashtags\n  let hashtags = '';\n  if (json.hashtags && Array.isArray(json.hashtags)) {\n    hashtags = json.hashtags\n      .map(h => h.name)\n      .filter(h => h.trim() !== '')\n      .map(h => `#${h}`)\n      .join(' ');\n  }\n  \n  // Parse createTimeISO to datetime format (2026-02-22 09:50:10)\n  let publish_datetime = '';\n  if (json.createTimeISO) {\n    const date = new Date(json.createTimeISO);\n    publish_datetime = date.toISOString().replace('T', ' ').substring(0, 19);\n  }\n  \n  // Calculate days since published\n  let days_since_published = 0;\n  if (json.createTimeISO) {\n    const publishDate = new Date(json.createTimeISO);\n    const now = new Date();\n    const diffMs = now - publishDate;\n    days_since_published = Math.floor(diffMs / (1000 * 60 * 60 * 24));\n  }\n  \n  // Check if is_latest_video (assuming TRUE for now, will be updated by user logic)\n  const is_latest_video = true;\n  \n  // Normalize row\n  const normalizedRow = {\n    tiktok_username: tiktok_username,\n    video_id: json.id,\n    video_url: json.webVideoUrl || '',\n    is_latest_video: is_latest_video,\n    days_since_published: days_since_published,\n    video_desc: json.text || '',\n    hashtags: hashtags,\n    createTimeISO: json.createTimeISO || '',\n    publish_datetime: publish_datetime,\n    duration_seconds: json.videoMeta?.duration || 0,\n    views_count: json.playCount || 0,\n    likes_count_video: json.diggCount || 0,\n    comments_count: json.commentCount || 0,\n    shares_count: json.shareCount || 0\n  };\n  \n  normalized.push(normalizedRow);\n}\nreturn normalized;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -304,
+        -16
+      ],
+      "id": "b9265b28-b546-4675-9029-848e2074300b",
+      "name": "Normalize"
+    },
+    {
+      "parameters": {
+        "keyName": "data_link",
+        "valueString": "={{ $json.data }}"
+      },
+      "type": "n8n-nodes-datastore.datastore",
+      "typeVersion": 1,
+      "position": [
+        368,
+        -16
+      ],
+      "id": "9be60eff-ec54-493e-857f-61b45193a912",
+      "name": "Datastore"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Run an Actor and get dataset": {
+      "main": [
+        [
+          {
+            "node": "Normalize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Data Split",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Split": {
+      "main": [
+        [
+          {
+            "node": "Run an Actor and get dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Datastore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "binaryMode": "separate"
+  },
+  "versionId": "8b332923-d726-4400-b548-b12a8485ea49",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9169240aa396e02f2c5a63419738aa6924e2c86fdaac5a1468a0d26b7155f026"
+  },
+  "id": "WdupgjrrvNKscKwo",
+  "tags": []
+}
